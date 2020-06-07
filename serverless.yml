@@ -1,0 +1,138 @@
+service:
+  name: jobdoor
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+
+  environment:
+    JOBPOSTS_TABLE: JobPosts-${self:provider.stage}
+    JOBDOOR_USER_TABLE: JobDoorUser-${self:provider.stage}
+    AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
+    # AUTH_0_SECRET_FIELD: auth0Secret
+    # AUTH_0_SECRET_FIELD: ERFl8UTz8089TByYve6lR44HjQTMyvOSTgNxNIwOdcGIvBSqFGpRt_UgmblfPTqS
+    AUTH_0_SECRET_FIELD: R4a8UXJucA9lE1O6jlzZD4OZkHk5fwosX89cDKPsEcRAsGVZvE3ZWFhs1iZwiah7
+    JOBPOSTS_BY_POSTER_ID_INDEX: JobPostsByPosterId-${self:provider.stage}
+functions:
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
+
+  GetJobPosts:
+    handler: src/lambda/http/getJobPosts.handler
+    events:
+      - http:
+          method: get
+          path: jobposts
+          request:
+            parameters:
+              paths:
+                locationId:true
+                posterId:true
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}/index/${self:provider.environment.JOBPOSTS_BY_POSTER_ID_INDEX}
+
+  CreateUser:
+    handler: src/lambda/http/createUser.handler
+    events:
+      - http:
+          method: post
+          path: user
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBDOOR_USER_TABLE}
+
+
+resources:
+  Resources:
+
+    JobPostsDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: locationCode
+            AttributeType: S
+          - AttributeName: jobId
+            AttributeType: S
+          - AttributeName: posterId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: locationCode
+            KeyType: HASH
+          - AttributeName: jobId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.JOBPOSTS_TABLE}
+
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.JOBPOSTS_BY_POSTER_ID_INDEX}
+            KeySchema:
+            - AttributeName: posterId
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    JobDoorUserDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: locationCode
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: locationCode
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.JOBDOOR_USER_TABLE}
+    # if authorization fails this response is snet by default
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
