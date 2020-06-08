@@ -5,8 +5,9 @@ import { CreateUserRequest } from '../models/CreateUserRequest'
 import { ImageUrl } from '../models/ImageUrl'
 import { JobPost } from '../models/JobPost'
 import {User} from '../models/User'
+import { ApplyForJobRequest } from '../models/ApplyForJobRequest'
 
-const XAWS = AWSXRay.captureAWS(AWS)
+// const XAWS = AWSXRay.captureAWS(AWS)
 
 const jobPostsTable = process.env.JOBPOSTS_TABLE
 const jobDoorUsersTable = process.env.JOBDOOR_USER_TABLE
@@ -40,29 +41,27 @@ export class JobDoorItemAccess {
   //  }
   // }
 
-  // async updateTodo(userId:string ,todoId: string,todoUpdate: TodoUpdate):Promise<any>{
-  //   console.log('updating items with name :',todoUpdate.name);
-  //  try{
-  //   const updateData= await this.docClient.update(
-  //     {
-  //       TableName:this.todosTable,
-  //       Key:{
-  //           "userId": userId,
-  //           "todoId": todoId
-  //       },
-  //       UpdateExpression: "set done = :done",
-  //       ExpressionAttributeValues:{
-  //           ":done":todoUpdate.done
-  //       },
-  //       ReturnValues:"UPDATED_NEW"
-  //   }).promise();
-  //   console.log('updated data',updateData);
-  //   return updateData;
-  //  }catch(e){
-  //   console.log('updated data',e);
-  //     return e;
-  //  }
-  // }
+  async updateJobPost(candidateId: string,applyForJobRequest:ApplyForJobRequest):Promise<any>{
+    const {jobId,locationCode}=applyForJobRequest
+    console.log('updating items with jobId ',jobId,'for candidateId',candidateId);
+   try{
+    const updateData= await this.docClient.update(
+      {
+
+        TableName: jobPostsTable,
+        Key: { jobId ,locationCode},
+        UpdateExpression: "SET #attrName = list_append(#attrName, :candidateId)",
+        ExpressionAttributeNames: { "#attrName" : "candidateIds" },
+        ExpressionAttributeValues: { ":candidateId": [candidateId] },
+        ReturnValues:"UPDATED_NEW"
+    }).promise();
+    console.log('updated data',updateData);
+    return updateData;
+   }catch(e){
+    console.log('updated data',e);
+      return e;
+   }
+  }
 
   async getAllJobPostsByLocation(location:string): Promise<JobPost[]> {
     console.log('Getting all job posts for location:',location);
@@ -91,10 +90,64 @@ export class JobDoorItemAccess {
         },
 
   }).promise()
-
+    console.log(result);
     const items = result.Items
     return items as JobPost[] ;
   }
+
+  async getAllJobPostsByCandidateId(candidateId:string): Promise<JobPost[]> {
+    console.log('Getting all job posts for candidateId:',candidateId);
+
+    const result = await this.docClient.scan({
+      TableName : jobPostsTable,
+      FilterExpression: 'contains(candidateIds, :candidateId)',
+      ExpressionAttributeValues: {
+          ':candidateId': candidateId
+        },
+
+  }).promise()
+
+  console.log(result);
+    const items = result.Items
+    return items as JobPost[] ;
+  }
+
+
+  async getCandidates(jobId:string): Promise<User[]> {
+    console.log('Getting  job post for jobId:',jobId);
+
+    const jobPosts = await this.docClient.scan({
+      TableName : jobPostsTable,
+      FilterExpression: 'jobId =:jobId',
+      ExpressionAttributeValues: {
+          ':jobId': jobId
+        },
+
+  }).promise()
+  if(jobPosts.Items.length>0){
+      const jobPost=jobPosts.Items[0];
+      const candidateIds=jobPost.candidateIds
+      const argList=candidateIds.map((c,ind)=>`:c${ind}`).join(',');
+      console.log('filterExpression',argList);
+      const expAttr={};
+      for(let i=0;i<candidateIds.length;i++){
+        expAttr[`:c${i}`]=candidateIds[i];
+      }
+      console.log(expAttr);
+      const result= await this.docClient.scan({
+        TableName : jobDoorUsersTable,
+        FilterExpression: `userId IN( ${argList} )`,
+        ExpressionAttributeValues:expAttr,
+
+    }).promise()
+
+    console.log(result);
+    const items = result.Items
+    return items as User[] ;
+  }
+
+}
+
 
 
   async createUser(user: User): Promise<User> {
@@ -106,12 +159,15 @@ export class JobDoorItemAccess {
   }
 
   async createJobPost(jobPost: JobPost): Promise<JobPost> {
+    console.log("JobPost",jobPost);
     await this.docClient.put({
       TableName: jobPostsTable,
       Item: jobPost
     }).promise()
     return jobPost;
   }
+
+
 
 //   async generateUploadUrl(userId:string,todoId:string,imageId:string): Promise<ImageUrl> {
 //     try{
@@ -157,5 +213,5 @@ function createDynamoDBClient() {
     })
   }
 
-  return new XAWS.DynamoDB.DocumentClient()
+  return new AWS.DynamoDB.DocumentClient()
 }

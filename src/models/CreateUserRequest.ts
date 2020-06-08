@@ -3,5 +3,5 @@ export interface CreateUserRequest{
     experience: string
     skills: string
     description: string
-    userType: string
+    userType:string
 }

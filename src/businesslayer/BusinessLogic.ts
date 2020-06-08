@@ -4,7 +4,8 @@ import { parseJwtToken } from '../utils/utils'
 import { JobPost } from '../models/JobPost'
 import { User } from '../models/User'
 import { CreateJobPostRequest } from '../models/CreateJobPostRequest'
-import {uuid} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
+import { ApplyForJobRequest } from '../models/ApplyForJobRequest'
 
 const  itemAccess=new JobDoorItemAccess();
 
@@ -17,15 +18,24 @@ export async function getAllJobPostsByPosterId(jwtToken:string): Promise<JobPost
     return itemAccess.getAllJobPostsByPosterId(jwtPayload.sub)
   }
 
+export async function getAllJobPostsByCandidateId(jwtToken:string): Promise<JobPost[]> {
+    const jwtPayload = parseJwtToken(jwtToken);
+    return itemAccess.getAllJobPostsByCandidateId(jwtPayload.sub)
+  }
+
+export async function getCandidates(postId:string): Promise<User[]> {
+    return itemAccess.getCandidates(postId)
+  }
+
 // export async function deleteTodo(jwtToken:string,todoId:string): Promise<any> {
 //   const userId = parseUserId(jwtToken)
 //   return todoItemAccess.deleteTodo(userId,todoId)
 // }
 
-// export async function updateTodo(jwtToken:string, todoId:string, updateTodoRequest: UpdateTodoRequest): Promise<any> {
-//   const userId = parseUserId(jwtToken)
-//   return todoItemAccess.updateTodo(userId,todoId,updateTodoRequest)
-// }
+export async function updateJobPostApply(jwtToken:string, applyForJobRequest: ApplyForJobRequest): Promise<any> {
+  const jwtPayload = parseJwtToken(jwtToken)
+  return itemAccess.updateJobPost(jwtPayload.sub,applyForJobRequest);
+}
 
 // export async function generateUploadUrl(jwtToken:string, todoId:string): Promise<ImageUrl> {
 //   const userId = parseUserId(jwtToken)
@@ -58,7 +68,7 @@ export async function createJobPost(
     createJobPostRequest: CreateJobPostRequest,
     jwtToken: string
   ): Promise<JobPost> {
-     const jobId=uuid.v4;
+     const jobId=uuidv4();
       const userDetails = parseJwtToken(jwtToken)
       const {locationCode,jobDescription}=createJobPostRequest
       const newJobPost ={
