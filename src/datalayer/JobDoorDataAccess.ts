@@ -7,10 +7,16 @@ import { JobPost } from '../models/JobPost'
 import {User} from '../models/User'
 import { ApplyForJobRequest } from '../models/ApplyForJobRequest'
 
-// const XAWS = AWSXRay.captureAWS(AWS)
+const XAWS = AWSXRay.captureAWS(AWS)
+const s3 = new AWS.S3({
+  signatureVersion: 'v4'
+})
 
+const userIndex= process.env.JOBDOOR_USER_ID_INDEX;
 const jobPostsTable = process.env.JOBPOSTS_TABLE
 const jobDoorUsersTable = process.env.JOBDOOR_USER_TABLE
+const imageBucket=process.env.IMAGES_S3_BUCKET;
+const expiration=process.env.SIGNED_URL_EXPIRATION;
 // const profilePicBucket=
 // const urlExpiration =  process.env.SIGNED_URL_EXPIRATION
 
@@ -124,9 +130,11 @@ export class JobDoorItemAccess {
         },
 
   }).promise()
+  console.log("jobPosts",jobPosts);
   if(jobPosts.Items.length>0){
       const jobPost=jobPosts.Items[0];
       const candidateIds=jobPost.candidateIds
+      if(candidateIds.length>0){
       const argList=candidateIds.map((c,ind)=>`:c${ind}`).join(',');
       console.log('filterExpression',argList);
       const expAttr={};
@@ -145,7 +153,8 @@ export class JobDoorItemAccess {
     const items = result.Items
     return items as User[] ;
   }
-
+}
+ return [] as User[];
 }
 
 
@@ -167,38 +176,58 @@ export class JobDoorItemAccess {
     return jobPost;
   }
 
+async generateUploadUrl(userId:string): Promise<ImageUrl> {
+  console.log("upload url for user id",userId);
+  // try{
+    const uploadUrl=this.getUploadUrl(userId);
+    // const updateData= await this.docClient.update(
+    //   {
+    //     TableName:jobDoorUsersTable,
+    //     Key:{
+    //         "userId": userId,
+    //         "locationCode": locationCode
+    //     },
+    //     UpdateExpression: "set imageUrl = :imageUrl",
+    //     ExpressionAttributeValues:{
+    //         ":imageUrl":`https://${imagesTable}.s3.amazonaws.com/${userId}`
+    //     },
+    //     ReturnValues:"UPDATED_NEW"
+    // }).promise();
+    // console.log('updated data',updateData);
+    return Promise.resolve({uploadUrl});
+  //  }catch(e){
+  //   console.log('updated data',e);
+  //  }
+}
 
+getUploadUrl(imageId: string) {
+  return s3.getSignedUrl('putObject', {
+    Bucket: imageBucket,
+    Key: imageId,
+    Expires: parseInt(expiration)
+  })
+}
 
-//   async generateUploadUrl(userId:string,todoId:string,imageId:string): Promise<ImageUrl> {
-//     try{
-//       const uploadUrl=this.getUploadUrl(imageId);
-//       const updateData= await this.docClient.update(
-//         {
-//           TableName:this.todosTable,
-//           Key:{
-//               "userId": userId,
-//               "todoId": todoId
-//           },
-//           UpdateExpression: "set attachmentUrl = :attachmentUrl",
-//           ExpressionAttributeValues:{
-//               ":attachmentUrl":`https://${jobPostsTable}.s3.amazonaws.com/${imageId}`
-//           },
-//           ReturnValues:"UPDATED_NEW"
-//       }).promise();
-//       console.log('updated data',updateData);
-//       return Promise.resolve({uploadUrl});
-//      }catch(e){
-//       console.log('updated data',e);
-//      }
-//   }
+async getUser(userId:string): Promise<User> {
+  console.log('Getting  user for userId:',userId);
 
-//   getUploadUrl(imageId: string) {
-//     return s3.getSignedUrl('putObject', {
-//       Bucket: jobPostsTable,
-//       Key: imageId,
-//       Expires: urlExpiration
-//     })
-//   }
+  const result = await this.docClient.query({
+    TableName: jobDoorUsersTable,
+    IndexName: userIndex,
+    KeyConditionExpression: "userId = :userId",
+    ExpressionAttributeValues: {
+        ":userId": userId
+    }
+}).promise()
+
+ if(result.Items.length>0){
+  const items = result.Items[0]
+  return items as User
+ }else{
+   return {} as User;
+ }
+}
+
 
 }
 

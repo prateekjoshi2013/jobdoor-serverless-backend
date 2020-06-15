@@ -7,11 +7,11 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     console.log('Caller event', event)
     const postId = event.queryStringParameters.postId;
         const result= await getCandidates(postId);
+        console.log('candidates:',result);
         return getResponse(result);
 }
 
 const getResponse=(result)=> {
-    if (result.length !== 0) {
         return {
           statusCode: 200,
           headers: {
@@ -19,5 +19,4 @@ const getResponse=(result)=> {
           },
           body: JSON.stringify(result)
         }
-      }
 }

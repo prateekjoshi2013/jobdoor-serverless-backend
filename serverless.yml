@@ -33,13 +33,17 @@ provider:
   #     Resource: "*"
 
   environment:
+    IMAGES_S3_BUCKET: jobdoor-images-${self:provider.stage}
     JOBPOSTS_TABLE: JobPosts-${self:provider.stage}
     JOBDOOR_USER_TABLE: JobDoorUser-${self:provider.stage}
+    JOBDOOR_USER_ID_INDEX: JobDoorUser-UserId-index-${self:provider.stage}
     AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
     # AUTH_0_SECRET_FIELD: auth0Secret
     # AUTH_0_SECRET_FIELD: ERFl8UTz8089TByYve6lR44HjQTMyvOSTgNxNIwOdcGIvBSqFGpRt_UgmblfPTqS
     AUTH_0_SECRET_FIELD: R4a8UXJucA9lE1O6jlzZD4OZkHk5fwosX89cDKPsEcRAsGVZvE3ZWFhs1iZwiah7
     JOBPOSTS_BY_POSTER_ID_INDEX: JobPostsByPosterId-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 5000
+
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
@@ -85,6 +89,21 @@ functions:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBDOOR_USER_TABLE}
 
+  GetUser:
+    handler: src/lambda/http/getUser.handler
+    events:
+      - http:
+          method: get
+          path: user
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBDOOR_USER_TABLE}/index/${self:provider.environment.JOBDOOR_USER_ID_INDEX}
+
+
   CreateJobPost:
     handler: src/lambda/http/createJobPost.handler
     events:
@@ -102,12 +121,13 @@ functions:
           - dynamodb:DeleteItem
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}
+
   GetCandidates:
     handler: src/lambda/http/getCandidates.handler
     events:
       - http:
           method: get
-          path: jobposts
+          path: candidates
           request:
             parameters:
               paths:
@@ -132,6 +152,28 @@ functions:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBDOOR_USER_TABLE}
 
+  GetImageUploadUrl:
+    handler: src/lambda/http/getUploadImageUrl.handler
+    events:
+      - http:
+          method: get
+          path: imageurl
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBDOOR_USER_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
 
 
   ApplyForJob:
@@ -187,6 +229,14 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.JOBDOOR_USER_TABLE}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.JOBDOOR_USER_ID_INDEX}
+            KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
     # if authorization fails this response is snet by default
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
@@ -198,3 +248,37 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: ApiGatewayRestApi
+
+
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*'
+        Bucket: !Ref AttachmentsBucket

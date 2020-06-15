@@ -6,6 +6,7 @@ import { User } from '../models/User'
 import { CreateJobPostRequest } from '../models/CreateJobPostRequest'
 import { v4 as uuidv4 } from 'uuid';
 import { ApplyForJobRequest } from '../models/ApplyForJobRequest'
+import { ImageUrl } from '../../src/models/ImageUrl'
 
 const  itemAccess=new JobDoorItemAccess();
 
@@ -23,25 +24,26 @@ export async function getAllJobPostsByCandidateId(jwtToken:string): Promise<JobP
     return itemAccess.getAllJobPostsByCandidateId(jwtPayload.sub)
   }
 
+export async function getUser(jwtToken:string): Promise<JobPost[]> {
+    const jwtPayload = parseJwtToken(jwtToken);
+    return itemAccess.getUser(jwtPayload.sub)
+}
+
+
 export async function getCandidates(postId:string): Promise<User[]> {
     return itemAccess.getCandidates(postId)
   }
-
-// export async function deleteTodo(jwtToken:string,todoId:string): Promise<any> {
-//   const userId = parseUserId(jwtToken)
-//   return todoItemAccess.deleteTodo(userId,todoId)
-// }
 
 export async function updateJobPostApply(jwtToken:string, applyForJobRequest: ApplyForJobRequest): Promise<any> {
   const jwtPayload = parseJwtToken(jwtToken)
   return itemAccess.updateJobPost(jwtPayload.sub,applyForJobRequest);
 }
 
-// export async function generateUploadUrl(jwtToken:string, todoId:string): Promise<ImageUrl> {
-//   const userId = parseUserId(jwtToken)
-//   const imageId = uuid.v4();
-//   return todoItemAccess.generateUploadUrl(userId,todoId,imageId)
-// }
+export async function generateUploadUrl(jwtToken:string): Promise<ImageUrl> {
+  const jwtPayload = parseJwtToken(jwtToken);
+  return itemAccess.generateUploadUrl(jwtPayload.sub);
+}
+
 
 export async function createUser(
   createUserRequest: CreateUserRequest,
