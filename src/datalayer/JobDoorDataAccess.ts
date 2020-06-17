@@ -6,6 +6,7 @@ import { ImageUrl } from '../models/ImageUrl'
 import { JobPost } from '../models/JobPost'
 import {User} from '../models/User'
 import { ApplyForJobRequest } from '../models/ApplyForJobRequest'
+import {UpdateJobPostRequest} from '../models/UpdateJobPostRequest'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 const s3 = new AWS.S3({
@@ -29,23 +30,6 @@ export class JobDoorItemAccess {
     private readonly docClient: DocumentClient = createDynamoDBClient()) {
   }
 
-  // async deleteTodo(userId:string,todoId:string):Promise<any>{
-  //   console.log('deleting items with :',todoId);
-  //  try{
-  //   const deleteData= await this.docClient.delete({
-  //     TableName: this.todosTable,
-  //     Key:{
-  //       'userId': userId,
-  //       'todoId': todoId
-  //     }
-  //   }).promise();
-  //   console.log('deleting......',deleteData);
-  //   return deleteData;
-  //  }catch(e){
-  //   console.log('deleting......',e);
-  //     return e;
-  //  }
-  // }
 
   async updateJobPost(candidateId: string,applyForJobRequest:ApplyForJobRequest):Promise<any>{
     const {jobId,locationCode}=applyForJobRequest
@@ -68,6 +52,29 @@ export class JobDoorItemAccess {
       return e;
    }
   }
+
+  async editJobPost(request:UpdateJobPostRequest):Promise<any>{
+    const {jobId,locationCode,jobDescription}= request;
+    console.log('updating items with jobId ',jobId,'for location',locationCode);
+   try{
+    const updateData= await this.docClient.update(
+      {
+
+        TableName: jobPostsTable,
+        Key: { jobId ,locationCode},
+        UpdateExpression: "SET jobDescription = :jobDescription",
+        ExpressionAttributeValues: { ":jobDescription": jobDescription },
+        ReturnValues:"UPDATED_NEW"
+    }).promise();
+    console.log('updated data',updateData);
+    return updateData;
+   }catch(e){
+    console.log('updated data',e);
+      return e;
+   }
+  }
+
+
 
   async getAllJobPostsByLocation(location:string): Promise<JobPost[]> {
     console.log('Getting all job posts for location:',location);
@@ -229,6 +236,20 @@ async getUser(userId:string): Promise<User> {
  }
 }
 
+async deleteJobPost(jobId:string): Promise<any>{
+    const jobPost= await this.getJobPost(jobId);
+    if(jobPost.locationCode!==undefined){
+      const data=await this.docClient.delete({
+        TableName:jobPostsTable,
+        Key:{
+            "jobId": jobPost.jobId,
+            "locationCode": jobPost.locationCode
+        },
+      }).promise();
+      return data;
+    }
+    return {};
+}
 
 async getJobPost(jobId:string): Promise<JobPost> {
   console.log('Getting  job for jobId:',jobId);

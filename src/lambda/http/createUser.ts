@@ -7,7 +7,6 @@ import { createUser } from '../../businesslayer/BusinessLogic'
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const newUserDetails: CreateUserRequest = JSON.parse(event.body)
 
-  // TODO: Implement creating a new TODO item
   console.log('Processing event: ', event)
   const authorization = event.headers.Authorization
   const jwtToken = getToken(authorization);

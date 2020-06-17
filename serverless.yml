@@ -137,6 +137,29 @@ functions:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}/index/${self:provider.environment.JOBPOSTS_POST_ID_INDEX}
 
+  DeleteJobPost:
+    handler: src/lambda/http/deleteJobPost.handler
+    events:
+      - http:
+          method: delete
+          path: jobpost/{jobId}
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}/index/${self:provider.environment.JOBPOSTS_POST_ID_INDEX}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}
+
+
 
   GetCandidates:
     handler: src/lambda/http/getCandidates.handler
@@ -202,6 +225,24 @@ functions:
       - http:
           method: put
           path: jobpost
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}
+
+  EditJobPost:
+    handler: src/lambda/http/editJobPost.handler
+    events:
+      - http:
+          method: put
+          path: jobpost/edit
           cors: true
           authorizer: Auth
     iamRoleStatements:

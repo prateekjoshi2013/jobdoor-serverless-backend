@@ -7,7 +7,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const authorization = event.headers.Authorization
   const jwtPayload=getToken(authorization)
   const imageUrl= await generateUploadUrl(jwtPayload)
-  // TODO: Return a presigned URL to upload a file for a TODO item with the provided id { uploadUrl :}
   return {
     statusCode: 201,
     headers: {

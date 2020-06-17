@@ -6,6 +6,7 @@ import { User } from '../models/User'
 import { CreateJobPostRequest } from '../models/CreateJobPostRequest'
 import { v4 as uuidv4 } from 'uuid';
 import { ApplyForJobRequest } from '../models/ApplyForJobRequest'
+import { UpdateJobPostRequest } from '../models/UpdateJobPostRequest'
 import { ImageUrl } from '../../src/models/ImageUrl'
 
 const  itemAccess=new JobDoorItemAccess();
@@ -47,6 +48,14 @@ export async function generateUploadUrl(jwtToken:string): Promise<ImageUrl> {
 
 export async function getJobPost(jobId:string): Promise<JobPost> {
   return itemAccess.getJobPost(jobId);
+}
+
+export async function deleteJobPost(jobId:string): Promise<JobPost> {
+  return itemAccess.deleteJobPost(jobId);
+}
+
+export async function editJobPost(updateJobPostRequest:UpdateJobPostRequest): Promise<JobPost> {
+  return itemAccess.editJobPost(updateJobPostRequest);
 }
 
 export async function createUser(

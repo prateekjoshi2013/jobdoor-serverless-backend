@@ -1,16 +1,13 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-import { updateJobPostApply } from '../../businesslayer/BusinessLogic'
-import { ApplyForJobRequest } from '../../models/ApplyForJobRequest'
-import { getToken } from '../../utils/utils'
+import { editJobPost } from '../../businesslayer/BusinessLogic'
+import { UpdateJobPostRequest } from '../../models/UpdateJobPostRequest'
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log("processing event:",event);
-  const applyForJobRequest: ApplyForJobRequest = JSON.parse(event.body);
-  const authorization = event.headers.Authorization
-  const jwtPayload=getToken(authorization);
+  const updateJobPostRequest: UpdateJobPostRequest = JSON.parse(event.body);
   try{
-    await updateJobPostApply(jwtPayload,applyForJobRequest);
+    await editJobPost(updateJobPostRequest);
     return {
         statusCode: 201,
         headers: {
