@@ -24,7 +24,7 @@ export async function getAllJobPostsByCandidateId(jwtToken:string): Promise<JobP
     return itemAccess.getAllJobPostsByCandidateId(jwtPayload.sub)
   }
 
-export async function getUser(jwtToken:string): Promise<JobPost[]> {
+export async function getUser(jwtToken:string): Promise<User> {
     const jwtPayload = parseJwtToken(jwtToken);
     return itemAccess.getUser(jwtPayload.sub)
 }
@@ -40,10 +40,14 @@ export async function updateJobPostApply(jwtToken:string, applyForJobRequest: Ap
 }
 
 export async function generateUploadUrl(jwtToken:string): Promise<ImageUrl> {
+  const imageId=uuidv4();
   const jwtPayload = parseJwtToken(jwtToken);
-  return itemAccess.generateUploadUrl(jwtPayload.sub);
+  return itemAccess.generateUploadUrl(jwtPayload.sub,imageId);
 }
 
+export async function getJobPost(jobId:string): Promise<JobPost> {
+  return itemAccess.getJobPost(jobId);
+}
 
 export async function createUser(
   createUserRequest: CreateUserRequest,

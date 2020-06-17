@@ -17,7 +17,7 @@ const jobPostsTable = process.env.JOBPOSTS_TABLE
 const jobDoorUsersTable = process.env.JOBDOOR_USER_TABLE
 const imageBucket=process.env.IMAGES_S3_BUCKET;
 const expiration=process.env.SIGNED_URL_EXPIRATION;
-// const profilePicBucket=
+const jobPostsIndexTable=process.env.JOBPOSTS_POST_ID_INDEX;
 // const urlExpiration =  process.env.SIGNED_URL_EXPIRATION
 
 // const s3 = new XAWS.S3({
@@ -80,7 +80,7 @@ export class JobDoorItemAccess {
         }
 
   }).promise()
-
+    console.log('result:',result)
     const items = result.Items
     return items as JobPost[] ;
   }
@@ -176,28 +176,29 @@ export class JobDoorItemAccess {
     return jobPost;
   }
 
-async generateUploadUrl(userId:string): Promise<ImageUrl> {
+async generateUploadUrl(userId:string,picId:string): Promise<ImageUrl> {
   console.log("upload url for user id",userId);
-  // try{
-    const uploadUrl=this.getUploadUrl(userId);
-    // const updateData= await this.docClient.update(
-    //   {
-    //     TableName:jobDoorUsersTable,
-    //     Key:{
-    //         "userId": userId,
-    //         "locationCode": locationCode
-    //     },
-    //     UpdateExpression: "set imageUrl = :imageUrl",
-    //     ExpressionAttributeValues:{
-    //         ":imageUrl":`https://${imagesTable}.s3.amazonaws.com/${userId}`
-    //     },
-    //     ReturnValues:"UPDATED_NEW"
-    // }).promise();
-    // console.log('updated data',updateData);
+  try{
+    const uploadUrl=await this.getUploadUrl(picId);
+    const user=await this.getUser(userId);
+    const updateData= await this.docClient.update(
+      {
+        TableName:jobDoorUsersTable,
+        Key:{
+            "userId": userId,
+            "locationCode": user.locationCode
+        },
+        UpdateExpression: "set imageUrl = :imageUrl",
+        ExpressionAttributeValues:{
+            ":imageUrl":`https://${imageBucket}.s3.amazonaws.com/${picId}`
+        },
+        ReturnValues:"UPDATED_NEW"
+    }).promise();
+    console.log('updated data',updateData);
     return Promise.resolve({uploadUrl});
-  //  }catch(e){
-  //   console.log('updated data',e);
-  //  }
+   }catch(e){
+    console.log('updated data',e);
+   }
 }
 
 getUploadUrl(imageId: string) {
@@ -228,6 +229,26 @@ async getUser(userId:string): Promise<User> {
  }
 }
 
+
+async getJobPost(jobId:string): Promise<JobPost> {
+  console.log('Getting  job for jobId:',jobId);
+
+  const result = await this.docClient.query({
+    TableName: jobPostsTable,
+    IndexName: jobPostsIndexTable,
+    KeyConditionExpression: "jobId = :jobId",
+    ExpressionAttributeValues: {
+        ":jobId": jobId
+    }
+}).promise()
+
+ if(result.Items.length>0){
+  const items = result.Items[0]
+  return items as JobPost
+ }else{
+   return {} as JobPost;
+ }
+}
 
 }
 

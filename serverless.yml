@@ -35,6 +35,7 @@ provider:
   environment:
     IMAGES_S3_BUCKET: jobdoor-images-${self:provider.stage}
     JOBPOSTS_TABLE: JobPosts-${self:provider.stage}
+    JOBPOSTS_POST_ID_INDEX: JobPosts-PostId-index-${self:provider.stage}
     JOBDOOR_USER_TABLE: JobDoorUser-${self:provider.stage}
     JOBDOOR_USER_ID_INDEX: JobDoorUser-UserId-index-${self:provider.stage}
     AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
@@ -122,6 +123,21 @@ functions:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}
 
+  GetJobPost:
+    handler: src/lambda/http/getJobPost.handler
+    events:
+      - http:
+          method: get
+          path: jobpost/{jobId}
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBPOSTS_TABLE}/index/${self:provider.environment.JOBPOSTS_POST_ID_INDEX}
+
+
   GetCandidates:
     handler: src/lambda/http/getCandidates.handler
     events:
@@ -174,6 +190,10 @@ functions:
           - s3:PutObject
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBDOOR_USER_TABLE}/index/${self:provider.environment.JOBDOOR_USER_ID_INDEX}
 
 
   ApplyForJob:
@@ -213,6 +233,13 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.JOBPOSTS_TABLE}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.JOBPOSTS_POST_ID_INDEX}
+            KeySchema:
+            - AttributeName: jobId
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
 
     JobDoorUserDynamoDBTable:
       Type: AWS::DynamoDB::Table
