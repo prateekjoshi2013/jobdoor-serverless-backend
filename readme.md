@@ -1,3 +1,33 @@
+# JOBDOOR
+
+
+Jobdoor is a small prototype project which is a job search website.The idea is to allow users to sign up as a candidate or a company.Candidate's information is gathered from the sign in auth0 from third party provider in this project its mostly google.
+
+   # Features:
+  - The candidate can search job postings based on location and can apply for these job posts.
+  - The company can post jobs with location and job description , delete the posts ,edit the posts and can also view the applicants  
+
+
+
+
+### SETUP
+
+* [JOBDOOR-BACKEND](https://github.com/prateekjoshi2013/jobdoor-serverless-backend) - backend developed using aws serverless infrastructure using serverless framework
+* [JOBDOOR-FRONTEND](https://github.com/prateekjoshi2013/jobdoor-frontend) - Jobdoor frontend created using vue framework
+
+
+
+### Installation
+
+Just need to run the frontend server (instructions provided in the front end server repo )
+[JOBDOOR-FRONTEND](https://github.com/prateekjoshi2013/jobdoor-frontend)
+
+### Installation
+
+Since serverless framework deployment is done by terminal i have pasted the logs for deployment 
+
+
+
 <p class="has-line-data" data-line-start="0" data-line-end="1">…SERVERLESS-DEPLOYMENT-LOG…
 
 
