@@ -22,7 +22,7 @@ Jobdoor is a small prototype project which is a job search website.The idea is t
 Just need to run the frontend server (instructions provided in the front end server repo )
 [JOBDOOR-FRONTEND](https://github.com/prateekjoshi2013/jobdoor-frontend)
 
-### Installation
+### Serverless Deployment Logs
 
 Since serverless framework deployment is done by terminal i have pasted the logs for deployment 
 
