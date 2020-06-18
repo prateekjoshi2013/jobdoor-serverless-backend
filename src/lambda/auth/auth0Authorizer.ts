@@ -1,20 +1,19 @@
 import { CustomAuthorizerEvent, CustomAuthorizerResult } from 'aws-lambda'
 import 'source-map-support/register'
 import * as middy from 'middy'
-// import { secretsManager } from 'middy/middlewares'
+import { secretsManager } from 'middy/middlewares'
 
 import { verify } from 'jsonwebtoken'
 import { JwtPayload } from '../../models/JwtPayload';
 
-// const secretId = process.env.AUTH_0_SECRET_ID
+const secretId = process.env.AUTH_0_SECRET_ID
 const secretField = process.env.AUTH_0_SECRET_FIELD
 
 export const handler = middy(async (event: CustomAuthorizerEvent, context): Promise<CustomAuthorizerResult> => {
   try {
     const decodedToken = verifyToken(
       event.authorizationToken,
-      secretField
-    //   context.AUTH0_SECRET[secretField]
+      context.AUTH0_SECRET[secretField]
     )
     console.log('User was authorized', decodedToken)
 
@@ -63,15 +62,15 @@ function verifyToken(authHeader: string, secret: string): JwtPayload {
   return verify(token, secret) as JwtPayload
 }
 
-// handler.use(
-//   secretsManager({
-//     awsSdkOptions: { region: 'us-east-1' },
-//     cache: true,
-//     cacheExpiryInMillis: 60000,
-//     // Throw an error if can't read the secret
-//     throwOnFailedCall: true,
-//     secrets: {
-//       AUTH0_SECRET: secretId
-//     }
-//   })
-// )
+handler.use(
+  secretsManager({
+    awsSdkOptions: { region: 'us-east-1' },
+    cache: true,
+    cacheExpiryInMillis: 60000,
+    // Throw an error if can't read the secret
+    throwOnFailedCall: true,
+    secrets: {
+      AUTH0_SECRET: secretId
+    }
+  })
+)

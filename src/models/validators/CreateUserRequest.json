@@ -1,0 +1,49 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The root schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "required": [
+        "locationCode",
+        "userType"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "locationCode": {
+            "id": "#/properties/locationCode",
+            "type": "string",
+            "title": "The locationCode schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": ""
+        },
+        "experience": {
+            "id": "#/properties/experience",
+            "type": "string",
+            "title": "The experience schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": ""
+        },
+        "skills": {
+            "id": "#/properties/skills",
+            "type": "string",
+            "title": "The skills schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": ""
+        },
+        "description": {
+            "id": "#/properties/description",
+            "type": "string",
+            "title": "The description schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": ""
+        },
+        "userType": {
+            "id": "#/properties/userType",
+            "type": "string",
+            "title": "The userType schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": ""
+        }
+    }
+}

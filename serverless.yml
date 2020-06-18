@@ -13,6 +13,7 @@ custom:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-plugin-tracing
 
 provider:
   name: aws
@@ -21,16 +22,9 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
 
-  # tracing:
-  #   lambda: true
-  #   apiGateway: true
-
-  # iamRoleStatements:
-  #   - Effect: Allow
-  #     Action:
-  #       - xray:PutTraceSegments
-  #       - xray:PutTelemetryRecords
-  #     Resource: "*"
+  tracing:
+    lambda: true
+    apiGateway: true
 
   environment:
     IMAGES_S3_BUCKET: jobdoor-images-${self:provider.stage}
@@ -38,16 +32,24 @@ provider:
     JOBPOSTS_POST_ID_INDEX: JobPosts-PostId-index-${self:provider.stage}
     JOBDOOR_USER_TABLE: JobDoorUser-${self:provider.stage}
     JOBDOOR_USER_ID_INDEX: JobDoorUser-UserId-index-${self:provider.stage}
-    AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
-    # AUTH_0_SECRET_FIELD: auth0Secret
-    # AUTH_0_SECRET_FIELD: ERFl8UTz8089TByYve6lR44HjQTMyvOSTgNxNIwOdcGIvBSqFGpRt_UgmblfPTqS
-    AUTH_0_SECRET_FIELD: R4a8UXJucA9lE1O6jlzZD4OZkHk5fwosX89cDKPsEcRAsGVZvE3ZWFhs1iZwiah7
+    AUTH_0_SECRET_ID: Auth0Secret-Jobdoor-${self:provider.stage}
+    AUTH_0_SECRET_FIELD: auth0SecretJobDoor
+    # AUTH_0_SECRET_FIELD: R4a8UXJucA9lE1O6jlzZD4OZkHk5fwosX89cDKPsEcRAsGVZvE3ZWFhs1iZwiah7
     JOBPOSTS_BY_POSTER_ID_INDEX: JobPostsByPosterId-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 5000
 
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource: !Ref Auth0Secret
+      - Effect: Allow
+        Action:
+          - kms:Decrypt
+        Resource: !GetAtt KMSKey.Arn
 
   GetJobPosts:
     handler: src/lambda/http/getJobPosts.handler
@@ -80,6 +82,10 @@ functions:
           path: user
           cors: true
           authorizer: Auth
+          request:
+            # Schema that will be used to validate incoming requests
+            schema:
+              application/json: ${file(src/models/validators/CreateUserRequest.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -113,6 +119,10 @@ functions:
           path: jobpost
           cors: true
           authorizer: Auth
+          request:
+            # Schema that will be used to validate incoming requests
+            schema:
+              application/json: ${file(src/models/validators/CreateJobPostRequest.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -227,6 +237,10 @@ functions:
           path: jobpost
           cors: true
           authorizer: Auth
+          request:
+            # Schema that will be used to validate incoming requests
+            schema:
+              application/json: ${file(src/models/validators/ApplyForJobRequest.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -245,6 +259,11 @@ functions:
           path: jobpost/edit
           cors: true
           authorizer: Auth
+          request:
+            # Schema that will be used to validate incoming requests
+            schema:
+              application/json: ${file(src/models/validators/UpdateJobPostRequest.json)}
+
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -306,6 +325,7 @@ resources:
               ProjectionType: ALL
 
     # if authorization fails this response is snet by default
+
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
       Properties:
@@ -350,3 +370,36 @@ resources:
               Action: 's3:GetObject'
               Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
+    KMSKey:
+      Type: AWS::KMS::Key
+      Properties:
+        Description: KMS key to encrypt Auth0 secret
+        KeyPolicy:
+          Version: '2012-10-17'
+          Id: key-default-1
+          Statement:
+            - Sid: Allow administration of the key
+              Effect: Allow
+              Principal:
+                AWS:
+                  Fn::Join:
+                  - ':'
+                  - - 'arn:aws:iam:'
+                    - Ref: AWS::AccountId
+                    - 'root'
+              Action:
+                - 'kms:*'
+              Resource: '*'
+
+    KMSKeyAlias:
+      Type: AWS::KMS::Alias
+      Properties:
+        AliasName: alias/auth0Key-jobdoor-${self:provider.stage}
+        TargetKeyId: !Ref KMSKey
+
+    Auth0Secret:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Name: ${self:provider.environment.AUTH_0_SECRET_ID}
+        Description: Auth0 secret
+        KmsKeyId: !Ref KMSKey

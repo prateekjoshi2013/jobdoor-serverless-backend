@@ -1,7 +1,6 @@
 import * as AWS  from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
-import { CreateUserRequest } from '../models/CreateUserRequest'
 import { ImageUrl } from '../models/ImageUrl'
 import { JobPost } from '../models/JobPost'
 import {User} from '../models/User'
@@ -9,7 +8,7 @@ import { ApplyForJobRequest } from '../models/ApplyForJobRequest'
 import {UpdateJobPostRequest} from '../models/UpdateJobPostRequest'
 
 const XAWS = AWSXRay.captureAWS(AWS)
-const s3 = new AWS.S3({
+const s3 = new XAWS.S3({
   signatureVersion: 'v4'
 })
 
@@ -21,9 +20,6 @@ const expiration=process.env.SIGNED_URL_EXPIRATION;
 const jobPostsIndexTable=process.env.JOBPOSTS_POST_ID_INDEX;
 // const urlExpiration =  process.env.SIGNED_URL_EXPIRATION
 
-// const s3 = new XAWS.S3({
-//   signatureVersion: 'v4'
-// })
 export class JobDoorItemAccess {
 
   constructor(
@@ -284,5 +280,5 @@ function createDynamoDBClient() {
     })
   }
 
-  return new AWS.DynamoDB.DocumentClient()
+  return new XAWS.DynamoDB.DocumentClient()
 }
