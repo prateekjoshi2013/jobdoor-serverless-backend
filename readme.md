@@ -1,16 +1,18 @@
-........................SERVERLESS-DEPLOYMENT-LOG.......................
+<p class="has-line-data" data-line-start="0" data-line-end="1">…SERVERLESS-DEPLOYMENT-LOG…
+
+
 
 prateek@prateek-ubuntu:~/Dev/jobdoor$ sls deploy -v
 Serverless: Using configuration:
 {
-  "webpackConfig": "./webpack.config.js",
-  "includeModules": true,
-  "packager": "npm",
-  "packagerOptions": {},
-  "keepOutputDirectory": false
+  “webpackConfig”: “./webpack.config.js”,
+  “includeModules”: true,
+  “packager”: “npm”,
+  “packagerOptions”: {},
+  “keepOutputDirectory”: false
 }
 Serverless: Removing /home/prateek/Dev/jobdoor/.webpack
-Serverless: Bundling with Webpack...
+Serverless: Bundling with Webpack…
 Time: 1971ms
 Built at: 06/17/2020 10:06:36 PM
                                    Asset      Size  Chunks                   Chunk Names
@@ -48,11 +50,11 @@ Entrypoint src/lambda/http/getUploadImageUrl = src/lambda/http/getUploadImageUrl
 Entrypoint src/lambda/http/applyForJob = src/lambda/http/applyForJob.js src/lambda/http/applyForJob.js.map
 Entrypoint src/lambda/http/editJobPost = src/lambda/http/editJobPost.js src/lambda/http/editJobPost.js.map
  [0] ./src/utils/utils.ts 314 bytes {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} [built]
- [2] external "jsonwebtoken" 42 bytes {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} [built]
+ [2] external “jsonwebtoken” 42 bytes {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} [built]
  [3] ./src/businesslayer/BusinessLogic.ts + 1 modules 11 KiB {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} [built]
      | ./src/businesslayer/BusinessLogic.ts 2.68 KiB [built]
      | ./src/datalayer/JobDoorDataAccess.ts 8.34 KiB [built]
- [6] external "source-map-support/register" 42 bytes {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} [built]
+ [6] external “source-map-support/register” 42 bytes {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} [built]
  [9] ./src/lambda/auth/auth0Authorizer.ts 1.83 KiB {0} [built]
 [10] ./src/lambda/http/getJobPosts.ts 1.06 KiB {8} [built]
 [11] ./src/lambda/http/createUser.ts 1.04 KiB {3} [built]
@@ -66,52 +68,52 @@ Entrypoint src/lambda/http/editJobPost = src/lambda/http/editJobPost.js src/lamb
 [19] ./src/lambda/http/editJobPost.ts 819 bytes {5} [built]
     + 5 hidden modules
 Serverless: Fetch dependency graph from /home/prateek/Dev/jobdoor/package.json
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
 Serverless: Package lock found - Using locked versions
 Serverless: Packing external modules: jsonwebtoken@^8.5.1, source-map-support@^0.5.10, middy@^0.36.0, uuid@^8.1.0, aws-xray-sdk@^3.0.1
 Serverless: Package took [5956 ms]
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
-Serverless: INFO: Runtime dependency 'aws-sdk' found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
+Serverless: INFO: Runtime dependency ‘aws-sdk’ found in devDependencies. It has been excluded automatically.
 Serverless: Copy modules: /home/prateek/Dev/jobdoor/.webpack/service [454 ms]
 Serverless: Prune: /home/prateek/Dev/jobdoor/.webpack/service [2120 ms]
 Serverless: Run scripts: /home/prateek/Dev/jobdoor/.webpack/service [1 ms]
 Serverless: Zip service: /home/prateek/Dev/jobdoor/.webpack/service [2359 ms]
-Serverless: Packaging service...
+Serverless: Packaging service…
 Serverless: Remove /home/prateek/Dev/jobdoor/.webpack
-Serverless: Tracing DISABLED for function "jobdoor-dev-Auth"
-Serverless: Tracing DISABLED for function "jobdoor-dev-GetJobPosts"
-Serverless: Tracing DISABLED for function "jobdoor-dev-CreateUser"
-Serverless: Tracing DISABLED for function "jobdoor-dev-GetUser"
-Serverless: Tracing DISABLED for function "jobdoor-dev-CreateJobPost"
-Serverless: Tracing DISABLED for function "jobdoor-dev-GetJobPost"
-Serverless: Tracing DISABLED for function "jobdoor-dev-DeleteJobPost"
-Serverless: Tracing DISABLED for function "jobdoor-dev-GetCandidates"
-Serverless: Tracing DISABLED for function "jobdoor-dev-GetImageUploadUrl"
-Serverless: Tracing DISABLED for function "jobdoor-dev-ApplyForJob"
-Serverless: Tracing DISABLED for function "jobdoor-dev-EditJobPost"
-Serverless: Uploading CloudFormation file to S3...
-Serverless: Uploading artifacts...
-Serverless: Uploading service jobdoor.zip file to S3 (2.05 MB)...
-Serverless: Validating template...
-Serverless: Updating Stack...
-Serverless: Checking Stack update progress...
+Serverless: Tracing DISABLED for function “jobdoor-dev-Auth”
+Serverless: Tracing DISABLED for function “jobdoor-dev-GetJobPosts”
+Serverless: Tracing DISABLED for function “jobdoor-dev-CreateUser”
+Serverless: Tracing DISABLED for function “jobdoor-dev-GetUser”
+Serverless: Tracing DISABLED for function “jobdoor-dev-CreateJobPost”
+Serverless: Tracing DISABLED for function “jobdoor-dev-GetJobPost”
+Serverless: Tracing DISABLED for function “jobdoor-dev-DeleteJobPost”
+Serverless: Tracing DISABLED for function “jobdoor-dev-GetCandidates”
+Serverless: Tracing DISABLED for function “jobdoor-dev-GetImageUploadUrl”
+Serverless: Tracing DISABLED for function “jobdoor-dev-ApplyForJob”
+Serverless: Tracing DISABLED for function “jobdoor-dev-EditJobPost”
+Serverless: Uploading CloudFormation file to S3…
+Serverless: Uploading artifacts…
+Serverless: Uploading service jobdoor.zip file to S3 (2.05 MB)…
+Serverless: Validating template…
+Serverless: Updating Stack…
+Serverless: Checking Stack update progress…
 CloudFormation - UPDATE_IN_PROGRESS - AWS::CloudFormation::Stack - jobdoor-dev
 CloudFormation - UPDATE_IN_PROGRESS - AWS::Lambda::Function - CreateUserLambdaFunction
 CloudFormation - UPDATE_IN_PROGRESS - AWS::Lambda::Function - ApplyForJobLambdaFunction
@@ -174,7 +176,7 @@ CloudFormation - UPDATE_COMPLETE_CLEANUP_IN_PROGRESS - AWS::CloudFormation::Stac
 CloudFormation - DELETE_IN_PROGRESS - AWS::ApiGateway::Deployment - ApiGatewayDeployment1592439278816
 CloudFormation - DELETE_COMPLETE - AWS::ApiGateway::Deployment - ApiGatewayDeployment1592439278816
 CloudFormation - UPDATE_COMPLETE - AWS::CloudFormation::Stack - jobdoor-dev
-Serverless: Stack update finished...
+Serverless: Stack update finished…
 Service Information
 service: jobdoor
 stage: dev
@@ -184,16 +186,16 @@ resources: 101
 api keys:
   None
 endpoints:
-  GET - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobposts
-  POST - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/user
-  GET - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/user
-  POST - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost
-  GET - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/{jobId}
-  DELETE - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/{jobId}
-  GET - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/candidates
-  GET - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/imageurl
-  PUT - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost
-  PUT - https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/edit
+  GET - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobposts">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobposts</a>
+  POST - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/user">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/user</a>
+  GET - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/user">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/user</a>
+  POST - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost</a>
+  GET - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/%7BjobId%7D">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/{jobId}</a>
+  DELETE - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/%7BjobId%7D">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/{jobId}</a>
+  GET - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/candidates">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/candidates</a>
+  GET - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/imageurl">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/imageurl</a>
+  PUT - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost</a>
+  PUT - <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/edit">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev/jobpost/edit</a>
 functions:
   Auth: jobdoor-dev-Auth
   GetJobPosts: jobdoor-dev-GetJobPosts
@@ -221,9 +223,9 @@ ServerlessDeploymentBucketName: jobdoor-dev-serverlessdeploymentbucket-1xkd2xp8f
 EditJobPostLambdaFunctionQualifiedArn: arn:aws:lambda:us-east-1:654050453449:function:jobdoor-dev-EditJobPost:6
 CreateUserLambdaFunctionQualifiedArn: arn:aws:lambda:us-east-1:654050453449:function:jobdoor-dev-CreateUser:56
 CreateJobPostLambdaFunctionQualifiedArn: arn:aws:lambda:us-east-1:654050453449:function:jobdoor-dev-CreateJobPost:56
-ServiceEndpoint: https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev
+ServiceEndpoint: <a href="https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev">https://mj3vigvo30.execute-api.us-east-1.amazonaws.com/dev</a>
 GetJobPostLambdaFunctionQualifiedArn: arn:aws:lambda:us-east-1:654050453449:function:jobdoor-dev-GetJobPost:16
 
-Serverless: Removing old service artifacts from S3...
-Serverless: Run the "serverless" command to setup monitoring, troubleshooting and testing.
-prateek@prateek-ubuntu:~/Dev/jobdoor$
+Serverless: Removing old service artifacts from S3…
+Serverless: Run the “serverless” command to setup monitoring, troubleshooting and testing.
+prateek@prateek-ubuntu:~/Dev/jobdoor$</p>
